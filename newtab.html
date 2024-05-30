@@ -8,25 +8,16 @@
 	<style>
 		body {
 			margin: 0;
-			font-family: Arial, sans-serif;
+			font-family: monospace;
 			display: flex;
 			flex-direction: column;
 			justify-content: space-between;
 			min-height: 100vh;
-			background-color: #e5e5f7;
 			opacity: 0.8;
-			background-color: #17002d;
 			opacity: 1;
-			background: linear-gradient(-45deg, #b5a6c2, #8b98c5);
+			background: linear-gradient(45deg, #f3f7fb, #dee7f1);
 			background-size: 400% 400%;
 			color: black;
-		}
-
-		@media (prefers-color-scheme: dark) {
-			body {
-				background: linear-gradient(-45deg, #0e1230, #2c233e);
-				color: white;
-			}
 		}
 
 		.content {
@@ -54,8 +45,8 @@
 			font-weight: bold;
 			transition: background-color 0.3s;
 			backdrop-filter: blur(10px);
-			background-color: rgba(255, 255, 255, 0.3);
-			border: 1px solid rgba(255, 255, 255, 0.2);
+			background-color: rgba(0, 0, 0, 0.1);
+			border: 1px solid rgba(0, 0, 0, 0.3);
 			color: inherit;
 			text-align: center;
 			align-content: center;
@@ -64,8 +55,26 @@
 		}
 
 		.bookmark:hover {
-			background-color: rgba(255, 255, 255, 0.4);
+			background-color: rgba(0, 0, 0, 0.2);
 		}
+
+
+		@media (prefers-color-scheme: dark) {
+			body {
+				background: linear-gradient(45deg, #121415, #1f2326);
+				color: white;
+			}
+
+			.bookmark {
+				background-color: rgba(255, 255, 255, 0.3);
+				border: 1px solid rgba(255, 255, 255, 0.2);
+			}
+
+			.bookmark:hover {
+				background-color: rgba(255, 255, 255, 0.4);
+			}
+		}
+
 
 		.clock {
 			font-size: 4em;
@@ -108,6 +117,11 @@
 
 		setInterval(updateClock, 1000);
 		updateClock();  // Initial call to set the clock immediately
+		setTimeout(() => {
+			setInterval(updateClock, 1000);
+
+			// Start on the second
+		}, 1000 - Date.now() % 1000);
 	</script>
 </body>
 
