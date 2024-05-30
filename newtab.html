@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>New Tab</title>
+	<style>
+		body {
+			margin: 0;
+			font-family: Arial, sans-serif;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			min-height: 100vh;
+			background-color: #e5e5f7;
+			opacity: 0.8;
+			background-color: #17002d;
+			opacity: 1;
+			background: linear-gradient(-45deg, #b5a6c2, #8b98c5);
+			background-size: 400% 400%;
+			color: black;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			body {
+				background: linear-gradient(-45deg, #0e1230, #2c233e);
+				color: white;
+			}
+		}
+
+		.content {
+			padding: 5vh 5vh;
+		}
+
+		header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 5vw;
+		}
+
+		.bookmarks {
+			display: flex;
+			flex-direction: row;
+			gap: 10px;
+		}
+
+		.bookmark {
+			padding: 10px;
+			border-radius: 8px;
+			text-decoration: none;
+			text-align: center;
+			font-weight: bold;
+			transition: background-color 0.3s;
+			backdrop-filter: blur(10px);
+			background-color: rgba(255, 255, 255, 0.3);
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			color: inherit;
+			text-align: center;
+			align-content: center;
+			width: 4em;
+			height: 4em;
+		}
+
+		.bookmark:hover {
+			background-color: rgba(255, 255, 255, 0.4);
+		}
+
+		.clock {
+			font-size: 4em;
+		}
+
+		@media (max-width: 850px) {
+			header {
+				flex-direction: column-reverse;
+				align-items: center;
+				text-align: center;
+				position: relative;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="content">
+		<header>
+			<div class="bookmarks">
+				<a href="https://open.spotify.com/" class="bookmark">Spotify</a>
+				<a href="https://canvas.auckland.ac.nz/" class="bookmark">Canvas</a>
+				<a href="https://discord.com/app" class="bookmark">Discord</a>
+				<a href="https://mail.google.com/" class="bookmark">Gmail</a>
+			</div>
+			<div class="clock" id="clock"></div>
+		</header>
+
+		<p>Yes, this is ugly :(</p>
+	</div>
+
+	<script>
+		function updateClock() {
+			const now = new Date();
+			const hours = String(now.getHours()).padStart(2, '0');
+			const minutes = String(now.getMinutes()).padStart(2, '0');
+			const seconds = String(now.getSeconds()).padStart(2, '0');
+			document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+		}
+
+		setInterval(updateClock, 1000);
+		updateClock();  // Initial call to set the clock immediately
+	</script>
+</body>
+
+</html>
