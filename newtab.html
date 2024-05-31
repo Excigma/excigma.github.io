@@ -284,7 +284,12 @@
 			add_todo_item_button.addEventListener("click", addTodo)
 			todo_input.addEventListener("keydown", (event) => {
 				if (event.key === 'Enter') addTodo();
+				if (event.key === 'Escape') {
+					todo_input.value = '';
+					todo_input.blur();
+				}
 			})
+			todo_input.addEventListener("blur", addTodo)
 
 			function addTodo() {
 				const todo = todo_input.value;
