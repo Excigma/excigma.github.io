@@ -259,6 +259,11 @@
 			updateBookmarks();
 			updateTodos();
 
+			window.addEventListener("storage", function () {
+				updateBookmarks();
+				updateTodos();
+			}, false);
+
 			setInterval(updateClock, 1000);
 			setTimeout(() => {
 				setInterval(updateClock, 1000);
