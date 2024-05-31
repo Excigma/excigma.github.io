@@ -33,7 +33,7 @@
 			gap: 5vw;
 		}
 
-		.bookmarks {
+		.bookmark-container {
 			display: flex;
 			gap: 20px;
 			flex-flow: row wrap;
@@ -72,6 +72,27 @@
 			font-weight: bold;
 		}
 
+		.todo-container {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			max-width: 600px;
+		}
+
+		.todo-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 10px;
+			border-radius: 8px;
+			background-color: rgba(0, 0, 0, 0.1);
+			border: 1px solid rgba(0, 0, 0, 0.2);
+		}
+
+		.todo-item.completed {
+			text-decoration: line-through;
+		}
+
 		@media (prefers-color-scheme: dark) {
 			body {
 				background: linear-gradient(45deg, #121415, #1f2326);
@@ -90,6 +111,11 @@
 			.bookmark:hover {
 				background-color: rgba(255, 255, 255, 0.2);
 			}
+
+			.todo-item {
+				background-color: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.2);
+			}
 		}
 
 		@media (max-width: 850px) {
@@ -99,6 +125,11 @@
 				text-align: center;
 				position: relative;
 			}
+
+
+			.todo-container {
+				max-width: unset;
+			}
 		}
 	</style>
 </head>
@@ -106,7 +137,7 @@
 <body>
 	<div class="content">
 		<div class="top">
-			<div class="bookmarks">
+			<div class="bookmark-container">
 				<div class="bookmark" id="add-bookmark">
 					<!-- From https://tablericons.com/ -->
 					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps" width="50%"
@@ -124,7 +155,9 @@
 			<div class="clock" id="clock"></div>
 		</div>
 
-		<p>Yes, this is ugly :(</p>
+		<div class="todo-container" id="todo-container">
+			<input type="text" id="todo-input" placeholder="Add a new task">
+		</div>
 	</div>
 
 	<!-- <div class="modal add-bookmark-modal">
@@ -137,10 +170,13 @@
 		document.addEventListener("DOMContentLoaded", () => {
 			const add_bookmark = document.getElementById('add-bookmark');
 			const clock_elem = document.getElementById('clock');
-			const bookmarks_elem = document.querySelector('.bookmarks');
+			const bookmarks_elem = document.querySelector('.bookmark-container');
+			const todo_container = document.getElementById('todo-container');
+			const todo_input = document.getElementById('todo-input');
 
 			updateClock();
 			updateBookmarks();
+			updateTodos();
 
 			setInterval(updateClock, 1000);
 			setTimeout(() => {
@@ -159,10 +195,32 @@
 				}
 			})
 
+			todo_input.addEventListener("keydown", (event) => {
+				if (event.key === 'Enter') {
+					const todo = todo_input.value;
+					if (todo) {
+						const stored_todos = JSON.parse(localStorage.getItem('todos')) || [];
+						stored_todos.push({
+							text: todo,
+							completed: false
+						});
+						localStorage.setItem('todos', JSON.stringify(stored_todos));
+						todo_input.value = '';
+
+						updateTodos();
+					}
+				}
+			})
+
 			function updateBookmarks() {
 				const stored_bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+				const existing_bookmark_elems = [...document.querySelectorAll('.bookmark.link')];
 
-				[...document.querySelectorAll('.bookmark.link')].forEach(el => el.remove());
+				if (existing_bookmark_elems) {
+					for (const bookmark_elem of existing_bookmark_elems) {
+						bookmark_elem.remove();
+					}
+				}
 
 				for (const bookmark of stored_bookmarks) {
 					const link = document.createElement('a');
@@ -171,6 +229,7 @@
 
 					link.href = bookmark;
 					link.classList.add('bookmark');
+					link.classList.add('link');
 
 					// Try to get /favicon.ico, fallback to Google's favicon service if it fails
 					icon.data = `https://${new URL(bookmark).hostname}/favicon.ico`;
@@ -182,6 +241,50 @@
 					link.appendChild(icon);
 					bookmarks_elem.insertBefore(link, add_bookmark);
 				}
+			}
+
+			function updateTodos() {
+				const todos = JSON.parse(localStorage.getItem('todos')) || [];
+				const existing_todo_elems = [...document.querySelectorAll('.todo-item')];
+
+				if (existing_todo_elems) {
+					for (const todo_elem of existing_todo_elems) {
+						todo_elem.remove();
+					}
+				}
+
+				todos.forEach((todo, index) => {
+					const todoItem = document.createElement('div');
+					todoItem.classList.add('todo-item');
+					if (todo.completed) {
+						todoItem.classList.add('completed');
+					}
+
+					const checkbox = document.createElement('input');
+					checkbox.type = 'checkbox';
+					checkbox.checked = todo.completed;
+					checkbox.addEventListener('change', () => {
+						todo.completed = checkbox.checked;
+						localStorage.setItem('todos', JSON.stringify(todos));
+						updateTodos();
+					});
+
+					const task = document.createElement('span');
+					task.textContent = todo.text;
+
+					const deleteButton = document.createElement('button');
+					deleteButton.textContent = 'Delete';
+					deleteButton.addEventListener('click', () => {
+						todos.splice(index, 1);
+						localStorage.setItem('todos', JSON.stringify(todos));
+						updateTodos();
+					});
+
+					todoItem.appendChild(checkbox);
+					todoItem.appendChild(task);
+					todoItem.appendChild(deleteButton);
+					todo_container.appendChild(todoItem);
+				});
 			}
 
 			function updateClock() {
