@@ -10,7 +10,7 @@
 			margin: 0;
 			font-family: monospace;
 			min-height: 100vh;
-			background: linear-gradient(45deg, #f3f7fb, #dee7f1);
+			background: linear-gradient(45deg, #f3f7fb, #d8eaff);
 			color: black;
 		}
 
@@ -46,8 +46,8 @@
 			text-decoration: none;
 			text-align: center;
 			font-weight: bold;
-			transition: background-color 0.3s;
-			backdrop-filter: blur(10px);
+			transition: background-color 0.2s;
+			backdrop-filter: blur(5px);
 			background-color: rgba(0, 0, 0, 0.1);
 			border: 1px solid rgba(0, 0, 0, 0.2);
 			color: inherit;
@@ -84,10 +84,19 @@
 			align-items: center;
 			justify-content: space-between;
 			border-radius: 8px;
-			backdrop-filter: blur(10px);
+			backdrop-filter: blur(5px);
+			transition: background-color 0.2s;
 			background-color: rgba(0, 0, 0, 0.1);
 			border: 1px solid rgba(0, 0, 0, 0.2);
 			padding: 0px 10px;
+		}
+
+		.todo-item.completed {
+			border-color: #7faad6;
+		}
+
+		.todo-item:hover {
+			background-color: rgba(0, 0, 0, 0.2);
 		}
 
 		.todo-item input[type="text"] {
@@ -126,9 +135,19 @@
 			background-color: #7faad6;
 		}
 
+		#matrix {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			pointer-events: none;
+			z-index: -1;
+		}
+
 		@media (prefers-color-scheme: dark) {
 			body {
-				background: linear-gradient(45deg, #121415, #1f2326);
+				background: linear-gradient(45deg, #121415, #1a1f24);
 				color: white;
 			}
 
@@ -164,6 +183,14 @@
 				background-color: rgba(255, 255, 255, 0.1);
 				border: 1px solid rgba(255, 255, 255, 0.2);
 			}
+
+			.todo-item:hover {
+				background-color: rgba(255, 255, 255, 0.2);
+			}
+
+			/* #matrix {
+				filter: hue-rotate(180deg) invert();
+			} */
 		}
 
 		@media (max-width: 850px) {
@@ -174,7 +201,6 @@
 				position: relative;
 			}
 
-
 			.todo-container {
 				max-width: unset;
 			}
@@ -183,6 +209,7 @@
 </head>
 
 <body>
+	<canvas id="matrix"></canvas>
 	<div class="content">
 		<div class="top">
 			<div class="bookmark-container">
@@ -358,6 +385,56 @@
 
 				clock_elem.textContent = isSmallViewport ? `${hours}:${minutes}` : `${hours}:${minutes}:${seconds}`;
 			}
+
+			// Matrix code
+			const canvas = document.getElementById('matrix');
+			const ctx = canvas.getContext('2d');
+
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+
+			const fontSize = 20;
+			const columns = Math.ceil(canvas.width / fontSize);
+			const rows = 1.6 * Math.ceil(canvas.height / fontSize);
+			const binary = "01";
+
+			function randomColor(opacity) {
+				const colors = ["#252235", "#0a0f2f", "#150627", "#222240", "#151835", "#636270", "#89838A", "#BABFBB", "#687C90", "#1E4790", "#6375BB", "#B6BCB9", "#8B8FA7", "#5E6BA3", "#9D9CBA", "#C1C4C8", "#305197", "#21478C", "#5F6EA3", "#524C70", "#5D625D", "#A1A4B0"]
+
+				return colors[Math.floor(Math.random() * colors.length)]
+					+ Math.floor(opacity * 150).toString(16).padStart(2, '0');
+			}
+
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+
+			const grid = Array.from({ length: columns }, () =>
+				Array.from({ length: rows }, () => binary[Math.floor(Math.random() * binary.length)])
+			);
+
+
+			function draw() {
+				ctx.rotate(-(45 / 360) * (Math.PI * 2));
+				ctx.font = `${fontSize}px monospace`;
+
+				for (let i = 0; i < columns; i++) {
+					const randomRowStart = Math.floor(Math.random() * rows);
+					// between randomRowStart and rows
+					const randomRowEnd = randomRowStart + Math.floor(Math.random() * (rows - randomRowStart));
+					for (let j = randomRowStart; j < randomRowEnd; j++) {
+						ctx.fillStyle = randomColor((j - randomRowStart) / (randomRowEnd - randomRowStart));
+						ctx.fillText(grid[i][j], i * fontSize - canvas.width / 2, j * fontSize);
+					}
+				}
+			}
+
+			draw();
+			window.addEventListener('resize', () => {
+				canvas.width = window.innerWidth;
+				canvas.height = window.innerHeight;
+
+				draw();
+			})
 		})
 	</script>
 </body>
