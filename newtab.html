@@ -76,27 +76,74 @@
 			display: flex;
 			flex-direction: column;
 			gap: 10px;
-			max-width: 600px;
+			max-width: 545px;
 		}
 
 		.todo-item {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			padding: 10px;
 			border-radius: 8px;
 			background-color: rgba(0, 0, 0, 0.1);
 			border: 1px solid rgba(0, 0, 0, 0.2);
+			padding: 0px 10px;
 		}
 
-		.todo-item.completed {
+		.todo-item input[type="text"] {
+			flex-grow: 1;
+		}
+
+		.todo-item.completed input[type="text"] {
 			text-decoration: line-through;
+		}
+
+		button,
+		input {
+			font-size: 1.2em;
+			padding: 10px;
+			color: black;
+			font-family: monospace;
+			background: transparent;
+			border: none;
+			transition: padding 0.4s;
+			line-break: normal;
+		}
+
+		input[type="checkbox"] {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;
+			width: 1.5em;
+			height: 1.5em;
+			border-radius: 8px;
+			background-color: rgba(0, 0, 0, 0.1);
+			border: 1px solid rgba(0, 0, 0, 0.2);
+			cursor: pointer;
+		}
+
+		input[type="checkbox"]:checked {
+			background-color: #7faad6;
 		}
 
 		@media (prefers-color-scheme: dark) {
 			body {
 				background: linear-gradient(45deg, #121415, #1f2326);
 				color: white;
+			}
+
+			button,
+			input {
+				color: white;
+				cursor: pointer;
+			}
+
+			input[type="checkbox"] {
+				background-color: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.2);
+			}
+
+			input[type="checkbox"]:checked {
+				background-color: #26425e;
 			}
 
 			.icon {
@@ -156,7 +203,11 @@
 		</div>
 
 		<div class="todo-container" id="todo-container">
-			<input type="text" id="todo-input" placeholder="Add a new task">
+			<div id="add-todo-item" class="todo-item">
+				<input type="checkbox" />
+				<input type="text" id="todo-input" placeholder="Add a new todo" />
+				<button id="add-todo-item-button">Add</button>
+			</div>
 		</div>
 	</div>
 
@@ -173,6 +224,8 @@
 			const bookmarks_elem = document.querySelector('.bookmark-container');
 			const todo_container = document.getElementById('todo-container');
 			const todo_input = document.getElementById('todo-input');
+			const add_todo_item = document.getElementById('add-todo-item');
+			const add_todo_item_button = document.getElementById('add-todo-item-button');
 
 			updateClock();
 			updateBookmarks();
@@ -195,22 +248,25 @@
 				}
 			})
 
+			add_todo_item_button.addEventListener("click", addTodo)
 			todo_input.addEventListener("keydown", (event) => {
-				if (event.key === 'Enter') {
-					const todo = todo_input.value;
-					if (todo) {
-						const stored_todos = JSON.parse(localStorage.getItem('todos')) || [];
-						stored_todos.push({
-							text: todo,
-							completed: false
-						});
-						localStorage.setItem('todos', JSON.stringify(stored_todos));
-						todo_input.value = '';
-
-						updateTodos();
-					}
-				}
+				if (event.key === 'Enter') addTodo();
 			})
+
+			function addTodo() {
+				const todo = todo_input.value;
+				if (todo) {
+					const stored_todos = JSON.parse(localStorage.getItem('todos')) || [];
+					stored_todos.push({
+						text: todo,
+						completed: false
+					});
+					localStorage.setItem('todos', JSON.stringify(stored_todos));
+					todo_input.value = '';
+
+					updateTodos();
+				}
+			}
 
 			function updateBookmarks() {
 				const stored_bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
@@ -245,7 +301,7 @@
 
 			function updateTodos() {
 				const todos = JSON.parse(localStorage.getItem('todos')) || [];
-				const existing_todo_elems = [...document.querySelectorAll('.todo-item')];
+				const existing_todo_elems = [...document.querySelectorAll('.todo-item:not(#add-todo-item)')];
 
 				if (existing_todo_elems) {
 					for (const todo_elem of existing_todo_elems) {
@@ -269,11 +325,16 @@
 						updateTodos();
 					});
 
-					const task = document.createElement('span');
-					task.textContent = todo.text;
+					const task = document.createElement('input');
+					task.type = 'text';
+					task.value = todo.text;
+					task.addEventListener('input', () => {
+						todo.text = task.value;
+						localStorage.setItem('todos', JSON.stringify(todos));
+					});
 
 					const deleteButton = document.createElement('button');
-					deleteButton.textContent = 'Delete';
+					deleteButton.textContent = '×';
 					deleteButton.addEventListener('click', () => {
 						todos.splice(index, 1);
 						localStorage.setItem('todos', JSON.stringify(todos));
@@ -283,7 +344,7 @@
 					todoItem.appendChild(checkbox);
 					todoItem.appendChild(task);
 					todoItem.appendChild(deleteButton);
-					todo_container.appendChild(todoItem);
+					todo_container.insertBefore(todoItem, add_todo_item);
 				});
 			}
 
