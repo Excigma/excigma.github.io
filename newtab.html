@@ -259,7 +259,7 @@
 			updateBookmarks();
 			updateTodos();
 
-			window.addEventListener("storage", function () {
+			window.addEventListener("storage", () => {
 				updateBookmarks();
 				updateTodos();
 			}, false);
