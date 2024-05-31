@@ -9,22 +9,24 @@
 		body {
 			margin: 0;
 			font-family: monospace;
-			display: flex;
-			flex-direction: column;
-			justify-content: space-between;
 			min-height: 100vh;
-			opacity: 0.8;
-			opacity: 1;
 			background: linear-gradient(45deg, #f3f7fb, #dee7f1);
-			background-size: 400% 400%;
 			color: black;
 		}
 
-		.content {
-			padding: 5vh 5vh;
+		.icon {
+			stroke: black;
 		}
 
-		header {
+		.content {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			padding: 5vh 5vh;
+			gap: 20px;
+		}
+
+		.top {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
@@ -47,7 +49,7 @@
 			transition: background-color 0.3s;
 			backdrop-filter: blur(10px);
 			background-color: rgba(0, 0, 0, 0.1);
-			border: 1px solid rgba(0, 0, 0, 0.3);
+			border: 1px solid rgba(0, 0, 0, 0.2);
 			color: inherit;
 			text-align: center;
 			align-content: center;
@@ -55,10 +57,20 @@
 			height: 4em;
 		}
 
+		.bookmark img,
+		.bookmark object {
+			width: 60%;
+			height: 60%;
+		}
+
 		.bookmark:hover {
 			background-color: rgba(0, 0, 0, 0.2);
 		}
 
+		.clock {
+			font-size: 4em;
+			font-weight: bold;
+		}
 
 		@media (prefers-color-scheme: dark) {
 			body {
@@ -66,23 +78,22 @@
 				color: white;
 			}
 
+			.icon {
+				stroke: white;
+			}
+
 			.bookmark {
-				background-color: rgba(255, 255, 255, 0.3);
+				background-color: rgba(255, 255, 255, 0.1);
 				border: 1px solid rgba(255, 255, 255, 0.2);
 			}
 
 			.bookmark:hover {
-				background-color: rgba(255, 255, 255, 0.4);
+				background-color: rgba(255, 255, 255, 0.2);
 			}
 		}
 
-
-		.clock {
-			font-size: 4em;
-		}
-
 		@media (max-width: 850px) {
-			header {
+			.top {
 				flex-direction: column-reverse;
 				align-items: center;
 				text-align: center;
@@ -94,37 +105,95 @@
 
 <body>
 	<div class="content">
-		<header>
+		<div class="top">
 			<div class="bookmarks">
-				<a href="https://open.spotify.com/" class="bookmark">Spotify</a>
-				<a href="https://canvas.auckland.ac.nz/" class="bookmark">Canvas</a>
-				<a href="https://discord.com/app" class="bookmark">Discord</a>
-				<a href="https://mail.google.com/" class="bookmark">Gmail</a>
+				<div class="bookmark" id="add-bookmark">
+					<!-- From https://tablericons.com/ -->
+					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps" width="50%"
+						height="50%" viewBox="0 0 24 24" stroke-width="1.5" fill="none" stroke-linecap="round"
+						stroke-linejoin="round">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+						<path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+						<path d="M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+						<path d="M14 7l6 0" />
+						<path d="M17 4l0 6" />
+					</svg>
+				</div>
 			</div>
 			<div class="clock" id="clock"></div>
-		</header>
+		</div>
 
 		<p>Yes, this is ugly :(</p>
 	</div>
 
+	<!-- <div class="modal add-bookmark-modal">
+		<input type="text" name="url" placeholder="URL">
+		<input type="text" name="name" placeholder="Name">
+		<button class="add-bookmark-button">Add</button>
+	</div> -->
+
 	<script>
-		function updateClock() {
-			const now = new Date();
-			const hours = String(now.getHours()).padStart(2, '0');
-			const minutes = String(now.getMinutes()).padStart(2, '0');
-			const seconds = String(now.getSeconds()).padStart(2, '0');
-			const isSmallViewport = window.matchMedia('(max-width: 20em)').matches;
+		document.addEventListener("DOMContentLoaded", () => {
+			const add_bookmark = document.getElementById('add-bookmark');
+			const clock_elem = document.getElementById('clock');
+			const bookmarks_elem = document.querySelector('.bookmarks');
 
-			document.getElementById('clock').textContent = isSmallViewport ? `${hours}:${minutes}` : `${hours}:${minutes}:${seconds}`;
-		}
+			updateClock();
+			updateBookmarks();
 
-		setInterval(updateClock, 1000);
-		updateClock();  // Initial call to set the clock immediately
-		setTimeout(() => {
 			setInterval(updateClock, 1000);
+			setTimeout(() => {
+				setInterval(updateClock, 1000);
 
-			// Start on the second
-		}, 1000 - Date.now() % 1000);
+				// Start on the second
+			}, 1000 - Date.now() % 1000);
+
+			add_bookmark.addEventListener("click", () => {
+				const url = prompt("Enter the URL of the bookmark");
+				if (url) {
+					const stored_bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+					stored_bookmarks.push(url);
+					localStorage.setItem('bookmarks', JSON.stringify(stored_bookmarks));
+					updateBookmarks();
+				}
+			})
+
+			function updateBookmarks() {
+				const stored_bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+
+				[...document.querySelectorAll('.bookmark.link')].forEach(el => el.remove());
+
+				for (const bookmark of stored_bookmarks) {
+					const link = document.createElement('a');
+					const icon = document.createElement('object');
+					const icon_fallback = document.createElement('img');
+
+					link.href = bookmark;
+					link.classList.add('bookmark');
+
+					// Try to get /favicon.ico, fallback to Google's favicon service if it fails
+					icon.data = `https://${new URL(bookmark).hostname}/favicon.ico`;
+					icon.type = 'image/x-icon';
+
+					icon_fallback.src = `https://www.google.com/s2/favicons?sz=64&domain=${new URL(bookmark).hostname}`;
+
+					icon.appendChild(icon_fallback)
+					link.appendChild(icon);
+					bookmarks_elem.insertBefore(link, add_bookmark);
+				}
+			}
+
+			function updateClock() {
+				const now = new Date();
+				const hours = String(now.getHours()).padStart(2, '0');
+				const minutes = String(now.getMinutes()).padStart(2, '0');
+				const seconds = String(now.getSeconds()).padStart(2, '0');
+				const isSmallViewport = window.matchMedia('(max-width: 20em)').matches;
+
+				clock_elem.textContent = isSmallViewport ? `${hours}:${minutes}` : `${hours}:${minutes}:${seconds}`;
+			}
+		})
 	</script>
 </body>
 
