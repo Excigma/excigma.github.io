@@ -37,7 +37,7 @@
 			display: flex;
 			gap: 20px;
 			flex-flow: row wrap;
-			place-content: space-evenly;
+			place-content: flex-start;
 		}
 
 		.bookmark {
@@ -70,6 +70,10 @@
 		.clock {
 			font-size: 5em;
 			font-weight: 600;
+		}
+
+		.date {
+			font-size: 1.5em;
 		}
 
 		.todo-container {
@@ -204,6 +208,10 @@
 			.todo-container {
 				max-width: unset;
 			}
+
+			.bookmark-container {
+				place-content: center;
+			}
 		}
 	</style>
 </head>
@@ -227,7 +235,11 @@
 					</svg>
 				</div>
 			</div>
-			<div class="clock" id="clock"></div>
+			<div id="clock-container">
+				<div class="clock" id="clock"></div>
+				<div class="date" id="friendly-date">asdsad</div>
+				<div class="date" id="date">asdsad</div>
+			</div>
 		</div>
 
 		<div class="todo-container" id="todo-container">
@@ -249,6 +261,8 @@
 		document.addEventListener("DOMContentLoaded", () => {
 			const add_bookmark = document.getElementById('add-bookmark');
 			const clock_elem = document.getElementById('clock');
+			const friendly_date_elem = document.getElementById('friendly-date');
+			const date_elem = document.getElementById('date');
 			const bookmarks_elem = document.querySelector('.bookmark-container');
 			const todo_container = document.getElementById('todo-container');
 			const todo_input = document.getElementById('todo-input');
@@ -388,12 +402,28 @@
 
 			function updateClock() {
 				const now = new Date();
+
+				const year = now.getFullYear();
+				const month = String(now.getMonth() + 1).padStart(2, '0');
+				const monthName = now.toLocaleDateString('en-US', { month: 'long' });
+				const day = String(now.getDate()).padStart(2, '0');
+				const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
+
 				const hours = String(now.getHours()).padStart(2, '0');
 				const minutes = String(now.getMinutes()).padStart(2, '0');
 				const seconds = String(now.getSeconds()).padStart(2, '0');
+
 				const isSmallViewport = window.matchMedia('(max-width: 20em)').matches;
 
 				clock_elem.textContent = isSmallViewport ? `${hours}:${minutes}` : `${hours}:${minutes}:${seconds}`;
+				friendly_date_elem.textContent = `${dayName} the ${addSuffix(day)} of ${monthName}`;
+				date_elem.textContent = `${day}/${month}/${year}`;
+			}
+
+			function addSuffix(number) {
+				const suffixes = ['st', 'nd', 'rd', 'th'];
+				const lastDigit = number % 10;
+				return number + (suffixes[lastDigit - 1] || suffixes[3]);
 			}
 
 			// Matrix code
