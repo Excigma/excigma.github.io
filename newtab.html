@@ -288,12 +288,18 @@
 			}, 1000 - Date.now() % 1000);
 
 			add_bookmark.addEventListener("click", () => {
-				const url = prompt("Enter the URL of the bookmark");
-				if (url) {
-					const stored_bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
-					stored_bookmarks.push(url);
-					localStorage.setItem('bookmarks', JSON.stringify(stored_bookmarks));
-					updateBookmarks();
+				try {
+					const url = new URL(prompt("Enter the URL of the bookmark"));
+
+					if (url) {
+						const stored_bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+						stored_bookmarks.push(url.toString());
+						localStorage.setItem('bookmarks', JSON.stringify(stored_bookmarks));
+						updateBookmarks();
+					}
+				} catch (error) {
+					console.error(error);
+					alert("There was an issue adding the bookmark. Please make sure you add the protocol (e.g. https://) before the start of the URL");
 				}
 			})
 
