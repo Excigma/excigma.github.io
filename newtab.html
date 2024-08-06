@@ -341,8 +341,7 @@
 				for (const bookmark of stored_bookmarks) {
 					const link = document.createElement('a');
 					const icon = document.createElement('object');
-					const icon_fallback_one = document.createElement('img');
-					const icon_fallback_two = document.createElement('img');
+					const icon_fallback = document.createElement('img');
 
 					link.href = bookmark;
 					link.classList.add('bookmark');
@@ -352,11 +351,9 @@
 					icon.data = `https://${new URL(bookmark).hostname}/favicon.ico`;
 					icon.type = 'image/x-icon';
 
-					icon_fallback_one.src = `https://icons.duckduckgo.com/ip3/${new URL(bookmark).hostname}.ico`;
-					icon_fallback_two.src = `https://www.google.com/s2/favicons?sz=128&domain=${new URL(bookmark).hostname}`;
+					icon_fallback.src = `https://icons.duckduckgo.com/ip3/${new URL(bookmark).hostname}.ico`;
 
-					icon.appendChild(icon_fallback_one)
-					icon.appendChild(icon_fallback_two)
+					icon.appendChild(icon_fallback)
 					link.appendChild(icon);
 					bookmarks_elem.insertBefore(link, add_bookmark);
 				}
